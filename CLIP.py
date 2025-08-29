@@ -6,7 +6,7 @@ import torch_directml
 
 device=""
 device = torch_directml.device()
-zlim= 1.0
+zlim= 10.0
 x = torch.ones(3,3).to(device)
 print("OK:", x.device)
 
@@ -21,7 +21,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 def show_vector_23x23_heights(vec, title="23×23 grid: height=value, diverging colors",
-                              scale=1.0, normalize=False):
+                              scale=60.0, normalize=False):
     """
     vec: 1D array/tensor (expected length 512).
     - Arranged row-major into a 23×23 grid (529 cells).
@@ -36,12 +36,19 @@ def show_vector_23x23_heights(vec, title="23×23 grid: height=value, diverging c
             vec = vec.detach().cpu().numpy()
     except ImportError:
         pass
-
-    v = np.asarray(vec).reshape(-1)
+    
+    v = np.asarray(vec)
+    print("shape first vettore:")
+    print(v.shape)
+    v.reshape(-1)
+    
+    print("shape second vettore:")
+    print(v.shape)
     if v.size < 512:
         raise ValueError(f"Need at least 512 values, got {v.size}")
 
-    v = v[:512]  # use first 512 dims
+
+    v = v[:512] # use first 512 dims, safety check
 
     if normalize:
         m = np.max(np.abs(v)) or 1.0
@@ -52,9 +59,9 @@ def show_vector_23x23_heights(vec, title="23×23 grid: height=value, diverging c
 
     # padding with "sanified" negative bottom value
     min_val = np.min(v)
-    pad_val = min_val - (0.1 * abs(min_val) if min_val != 0 else 1.0)
-    padded = np.full(total_cells, pad_val, dtype=float)
-    padded[:v.size] = v
+    pad_val = min_val - (0.1 * abs(min_val) if min_val != 0 else 1.0) #decrease the value by 0.1 of its own vale
+    padded = np.full(total_cells, pad_val, dtype=float) #fill the grid with padded values first
+    padded[:v.size] = v #fill with actual 512 values
 
     # coordinates
     y_idx, x_idx = np.divmod(np.arange(total_cells), grid_w)
@@ -81,20 +88,20 @@ def show_vector_23x23_heights(vec, title="23×23 grid: height=value, diverging c
 
     fig = go.Figure(data=go.Scatter3d(
         x=X, y=Y, z=Z,
-        mode='markers',
+        mode='lines+markers',
         marker=dict(
             size=4,
-            color=vals,
+            color=Z,
             colorscale=colorscale,
             cmin=-M, cmax=M,
             opacity=0.95,
             colorbar=dict(title="value", tickformat=".3f")
-        ),
-        hovertemplate=(
-            "dim=%{customdata}<br>x=%{x}, y=%{y}<br>"
-            "z=%{z:.3f} (val=%{marker.color:.3f})<extra></extra>"
-        ),
-        customdata=np.arange(total_cells)  # 0..528, shows which dim
+        )#,
+        #hovertemplate=(
+         #   "dim=%{customdata}<br>x=%{x}, y=%{y}<br>"
+          #  "z=%{z:.3f} (val=%{marker.color:.3f})<extra></extra>"
+        #),
+        #customdata=np.arange(total_cells)  # 0..528, shows which dim ###non funziona
     ))
 
     fig.update_layout(
@@ -104,9 +111,9 @@ def show_vector_23x23_heights(vec, title="23×23 grid: height=value, diverging c
                        backgroundcolor="black", gridcolor="#333"),
             yaxis=dict(title='y', range=[-0.5, 22.5], autorange=False,
                        backgroundcolor="black", gridcolor="#333"),
-            zaxis=dict(title='z', range=[-Zlim, Zlim], autorange=False,
+            zaxis=dict(title='z', #range=[-Zlim, Zlim], autorange=False,
                        backgroundcolor="black", gridcolor="#333"),
-            aspectmode='cube',  # keep proportions fixed
+            aspectmode='data',  # arrange axis to data
             bgcolor='black'
         ),
         paper_bgcolor='black',
