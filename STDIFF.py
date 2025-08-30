@@ -68,7 +68,7 @@ while(True):
     Z = h * 5.0  # stesso scaling che usavi per le barre
 
     # colori RGBA dai tre canali (0..1 -> 0..255)
-    rgba = np.stack([r, g, b, np.full_like(r, 0.9)], axis=-1).reshape(-1,4)
+    rgba = np.stack([r, g, b, np.full_like(r, 0.67)], axis=-1).reshape(-1,4)
     colors = ['rgba({},{},{},{})'.format(int(R*255), int(G*255), int(B*255), A)
             for R,G,B,A in rgba]
 
