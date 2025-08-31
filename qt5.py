@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QGraphicsPathItem
 # ---- Look & Feel ----
 BG   = QColor(0, 0, 0)
 #NEON = QColor(0, 255, 255)     # ciano neon
-NEON = QColor(255, 255, 255)     # bianco 
+NEON = QColor(0, int(255/1.1), int(255/1.1))     # bianco 
 
 TXT  = QColor(230, 255, 255)   # testo
 
@@ -150,11 +150,12 @@ def add_arrow_with_glow(view, x0, y0, x1, y1, color=NEON):
 
     bx = x1 - math.cos(ang)*head_len
     by = y1 - math.sin(ang)*head_len
-
-    left  = QPointF(bx + math.cos(ang + math.pi/2)*head_w/2,
-                    by + math.sin(ang + math.pi/2)*head_w/2)
-    right = QPointF(bx + math.cos(ang - math.pi/2)*head_w/2,
-                    by + math.sin(ang - math.pi/2)*head_w/2)
+    cost=8
+    cost2=1.1
+    left  = QPointF(bx + math.cos(ang + math.pi/cost)*head_w/cost2,
+                    by + math.sin(ang + math.pi/cost)*head_w/cost2)
+    right = QPointF(bx + math.cos(ang - math.pi/cost)*head_w/cost2,
+                    by + math.sin(ang - math.pi/cost)*head_w/cost2)
     tip   = QPointF(x1, y1)
 
     # One path, two segments: tip→left and tip→right
@@ -194,25 +195,26 @@ def main():
     C5 = rect_with_glow(view, label="Se il risultato non è gibberish\n (possibile nei modelli piu avanzati),\nscomposizione in componenti",
                         linker=C4, angle=0, color=NEON, base_font=base_font)
 
-    C6 = rect_with_glow(view, label="utilizzare clip per estrarre vett. immagine finale",
-                        linker=C5, angle=60, distance=90, color=NEON, base_font=base_font)
-    C7 = rect_with_glow(view, label="[???cpu] utilizzare blip per generare un caption,\npotendolo verificare con clip",
-                        linker=C5, angle=0, distance=70, color=NEON, base_font=base_font)
-    C8 = rect_with_glow(view, label="analizzare tramite analisi semantica [!Ai]+clip i\nrisultati dei componenti singoli ",
-                        linker=C5, angle=-60, distance=90, color=NEON, base_font=base_font)
-
-    C9 = rect_with_glow(view, label="risultato: scomposizione dei singoli concetti usati dall'ia\nper generare l'immagine",linker=C7, angle=0, color=NEON, base_font=base_font)
+    C6 = rect_with_glow(view, label="utilizzare CLIP per estrarre vett. immagine finale",
+                        linker=C5, angle=45, color=NEON, base_font=base_font)
+    C7 = vertical_rect(view, label="[???cpu] utilizzare blip per generare un caption,\npotendolo verificare con clip",
+                        linker=C6, angle=0,distance=30, color=NEON, base_font=base_font)
+    C8 = vertical_rect(view, label="analizzare tramite analisi semantica [!Ai]\n per separare il token testuale equivalente\n in concetti singoli ",
+                        linker=C7, angle=0,distance=30, color=NEON, base_font=base_font)
+    C9 = vertical_rect(view, label="reimmettere i token singoli in CLIP",
+                        linker=C8, angle=0,distance=30, color=NEON, base_font=base_font)
+    C9b = rect_with_glow(view, label="risultato: scomposizione dei singoli concetti usati dall'ia\nper generare l'immagine",linker=C9, angle=0, color=NEON, base_font=base_font)
 
     # Frecce aggiuntive
-    add_arrow_with_glow(view, *right_edge(*C6), *left_edge(*C9))
-    add_arrow_with_glow(view, *right_edge(*C8), *left_edge(*C9))
+    #add_arrow_with_glow(view, *right_edge(*C6), *left_edge(*C9))
+    #add_arrow_with_glow(view, *right_edge(*C8), *left_edge(*C9))
 
     C10=rect_with_glow(view, label="considerare le distanze in gioco\n per decidere se approccio 1 o approccio 2",
                         linker=C3,  distance=500,angle=0, color=NEON, base_font=base_font)
     
     C11=vertical_rect(view, label="opzionale: \nstudio 0-shot accuracy",
                         linker=C5,angle=0,direction="DOWN", color=NEON, base_font=base_font)
-    add_arrow_with_glow(view, *bottom_edge(*C9), *top_edge(*C10))
+    add_arrow_with_glow(view, *bottom_edge(*C9b), *top_edge(*C10))
 
     
     # massimizza finestra
