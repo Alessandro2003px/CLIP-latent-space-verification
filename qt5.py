@@ -9,8 +9,8 @@ from PyQt5.QtGui import QPainterPath
 from PyQt5.QtWidgets import QGraphicsPathItem
 # ---- Look & Feel ----
 BG   = QColor(0, 0, 0)
-#NEON = QColor(0, 255, 255)     # ciano neon
-NEON = QColor(0, int(255/1.1), int(255/1.1))     # bianco 
+#NEON = QColor(0, int(255/1.1), int(255/1.1))      # ciano neon
+NEON = QColor(int(255/1.1), int(255/1.1), int(255/1.1))     # bianco 
 
 TXT  = QColor(230, 255, 255)   # testo
 
@@ -22,6 +22,23 @@ def mk_pen(color, width, alpha=255):
     pen.setJoinStyle(QtCore.Qt.RoundJoin)
     pen.setCapStyle(QtCore.Qt.RoundCap)
     return pen
+def bind_auto_font(text_item: pg.TextItem, viewbox: pg.ViewBox, base_pt=12.0):
+    # Update font size from current transform
+    def update_font():
+        # Scene→View scale (assumes uniform scaling)
+        tr = viewbox.transform()          # QTransform
+        sx = tr.m11()                     # scale in X
+        f = text_item.font()             # uses the inner QGraphicsTextItem
+        f.setPointSizeF(base_pt * sx)     # scale your base size
+        text_item.setFont(f)
+
+    # Hook to changes (both are safe; some pg versions only have sigRangeChanged)
+    if hasattr(viewbox, "sigTransformChanged"):
+        viewbox.sigTransformChanged.connect(lambda *args: update_font())
+    viewbox.sigRangeChanged.connect(lambda *args: update_font())
+
+    update_font()  # set once now
+
 
 # testo centrato con pg.TextItem (supporta \n)
 def add_centered_text(view, cx, cy, text, font):
@@ -29,6 +46,17 @@ def add_centered_text(view, cx, cy, text, font):
     item.setFont(font)
     item.setPos(cx, cy)
     view.addItem(item)
+    '''try:
+        IGNORE = QtWidgets.QGraphicsItem.ItemIgnoresTransformations
+    except AttributeError:
+        # PyQt6 naming
+        IGNORE = QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations
+
+    # Clear the flag on BOTH the outer and inner items
+    item.setFlag(IGNORE, False)
+    item.textItem.setFlag(IGNORE, False)
+    item.textItem.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations, False)'''
+
     # misura “grezza” col font per dimensionare il box
     fm = QFontMetrics(font)
     lines = text.splitlines() or [text]
@@ -78,7 +106,9 @@ def vertical_rect(view, *, color=NEON, label=None,
     core  = QGraphicsRectItem(x, y, w, h); core.setPen(mk_pen(color, 2.6,  alpha=255)); view.addItem(core)
 
     if label:
-        add_centered_text(view, ox, oy, label, base_font)
+        item,maxw,htot=add_centered_text(view, ox, oy, label, base_font)
+        #bind_auto_font(item, view, base_pt=12.0)
+
     if not master:
         add_arrow_with_glow(view, *top_edge(*linker), *bottom_edge(ox,oy,w,h))
     return (ox, oy, w, h)
@@ -185,35 +215,29 @@ def main():
     # --- nodi come nel tuo script ---
     C1 = rect_with_glow(view, label="Immagine generata", master=True, color=NEON, base_font=base_font)
 
-    C2 = rect_with_glow(view, label="Vettore vicino a molte immagini,\nconcetto che il modello ha imparato [forse a memoria]",
-                        linker=C1, angle=60,direction="RIGHT", color=NEON, base_font=base_font)
-    C3 = rect_with_glow(view, label="maggior parte del contributo da queste immagini",
-                        linker=C2, angle=0, color=NEON, base_font=base_font)
+    C2 = rect_with_glow(view, label="Vettore vicino a molte immagini,\nconcetto che il modello ha imparato [forse a memoria]", linker=C1, angle=60,direction="RIGHT", color=NEON, base_font=base_font)
+    C3 = rect_with_glow(view, label="maggior parte del contributo da queste immagini", linker=C2, angle=0, color=NEON, base_font=base_font)
 
-    C4 = rect_with_glow(view, label="Vettore lontano, concetto nuovo",
-                        linker=C1, angle=-60, color=NEON, base_font=base_font)
-    C5 = rect_with_glow(view, label="Se il risultato non è gibberish\n (possibile nei modelli piu avanzati),\nscomposizione in componenti",
-                        linker=C4, angle=0, color=NEON, base_font=base_font)
+    C4 = rect_with_glow(view, label="Vettore lontano, concetto nuovo", linker=C1, angle=-60, color=NEON, base_font=base_font)
+    C5 = rect_with_glow(view, label="Se il risultato non è gibberish\n (possibile nei modelli piu avanzati),\nscomposizione in componenti", linker=C4, angle=0, color=NEON, base_font=base_font)
 
-    C6 = rect_with_glow(view, label="utilizzare CLIP per estrarre vett. immagine finale",
-                        linker=C5, angle=45, color=NEON, base_font=base_font)
-    C7 = vertical_rect(view, label="[???cpu] utilizzare blip per generare un caption,\npotendolo verificare con clip",
-                        linker=C6, angle=0,distance=30, color=NEON, base_font=base_font)
-    C8 = vertical_rect(view, label="analizzare tramite analisi semantica [!Ai]\n per separare il token testuale equivalente\n in concetti singoli ",
-                        linker=C7, angle=0,distance=30, color=NEON, base_font=base_font)
-    C9 = vertical_rect(view, label="reimmettere i token singoli in CLIP",
-                        linker=C8, angle=0,distance=30, color=NEON, base_font=base_font)
+    C6 = rect_with_glow(view, label="utilizzare CLIP per estrarre vett. immagine finale",linker=C5, angle=45, color=NEON, base_font=base_font)
+    C7 = vertical_rect(view, label="[???cpu] utilizzare blip per generare un caption,\npotendolo verificare con clip", linker=C6, angle=0,distance=30, color=NEON, base_font=base_font)
+    C8 = vertical_rect(view, label="analizzare tramite analisi semantica [!Ai]\n per separare il token testuale equivalente\n in concetti singoli ",linker=C7, angle=0,distance=30, color=NEON, base_font=base_font)
+    C9 = vertical_rect(view, label="reimmettere i token singoli in CLIP",linker=C8, angle=0,distance=30, color=NEON, base_font=base_font)
     C9b = rect_with_glow(view, label="risultato: scomposizione dei singoli concetti usati dall'ia\nper generare l'immagine",linker=C9, angle=0, color=NEON, base_font=base_font)
 
     # Frecce aggiuntive
     #add_arrow_with_glow(view, *right_edge(*C6), *left_edge(*C9))
     #add_arrow_with_glow(view, *right_edge(*C8), *left_edge(*C9))
 
-    C10=rect_with_glow(view, label="considerare le distanze in gioco\n per decidere se approccio 1 o approccio 2",
-                        linker=C3,  distance=500,angle=0, color=NEON, base_font=base_font)
+    C10=rect_with_glow(view, label="considerare le distanze in gioco\n per decidere se approccio 1 o approccio 2",linker=C3,  distance=500,angle=0, color=NEON, base_font=base_font)
     
-    C11=vertical_rect(view, label="opzionale: \nstudio 0-shot accuracy",
-                        linker=C5,angle=0,direction="DOWN", color=NEON, base_font=base_font)
+    C11=vertical_rect(view, label="opzionale: \nstudio 0-shot accuracy",linker=C5,angle=0,direction="DOWN", color=NEON, base_font=base_font)
+    #C12=rect_with_glow(view,linker=C10,angle=0)
+    #C13=rect_with_glow(view,linker=C12,angle=0)
+    #C14=rect_with_glow(view,linker=C13,angle=0)
+    #C15=rect_with_glow(view,linker=C14,angle=0)
     add_arrow_with_glow(view, *bottom_edge(*C9b), *top_edge(*C10))
 
     
