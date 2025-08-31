@@ -9,7 +9,9 @@ from PyQt5.QtGui import QPainterPath
 from PyQt5.QtWidgets import QGraphicsPathItem
 # ---- Look & Feel ----
 BG   = QColor(0, 0, 0)
-NEON = QColor(0, 255, 255)     # ciano neon
+#NEON = QColor(0, 255, 255)     # ciano neon
+NEON = QColor(255, 255, 255)     # bianco 
+
 TXT  = QColor(230, 255, 255)   # testo
 
 # ---------- utility ----------
@@ -37,10 +39,53 @@ def add_centered_text(view, cx, cy, text, font):
 def right_edge(cx, cy, w, h): return (cx + w/2.0, cy)
 def left_edge(cx, cy, w, h):  return (cx - w/2.0, cy)
 
+def top_edge(cx, cy, w, h): return (cx , cy- h/2.0)
+def bottom_edge(cx, cy, w, h):  return (cx, cy + h/2.0)
+
+def vertical_rect(view, *, color=NEON, label=None,
+                   master=False, linker=None, angle=0.0, distance=None, arrowAngle=True,
+                   base_font=QFont("DejaVu Sans", 11), pad_x=16, pad_y=10,direction="DOWN"):
+    
+    if label:
+        fm = QFontMetrics(base_font)
+        lines = label.splitlines() or [label]
+        maxw  = max(fm.horizontalAdvance(ln) for ln in lines)
+        htot  = sum(fm.height() for _ in lines)
+        w = max(80, maxw + 2*pad_x)
+        h = max(40, htot + 2*pad_y)
+    else:
+        w, h = 120, 60
+
+    # centro (ox, oy)
+    if master or linker is None:
+        ox, oy = 0.0, 0.0
+    else:
+        dir = 1 if direction == "DOWN" else (-1 if direction == "UP" else 0)
+        lx, ly, lw, lh = linker
+        offs = lh/2.0 + h/2.0 if arrowAngle else 0.0
+        dist = distance if distance is not None else 90.0
+        rad  = math.radians(angle-(90*dir))
+        ox   = lx + dist * math.cos(rad)
+        oy   = ly -(offs*dir)+ dist * math.sin(rad)
+
+    # shape glow (due layer) + bordo netto
+    x = ox - w/2.0; y = oy - h/2.0
+
+    #glow1 = QGraphicsRectItem(x, y, w, h); glow1.setPen(mk_pen(color, 18, alpha=45)); view.addItem(glow1)
+    for i in range(1, 9):  #12*2=24 6*3=18 6*2=12
+        glow = QGraphicsRectItem(x, y, w, h); glow.setPen(mk_pen(color, 2*i,alpha=(50-5*i))); view.addItem(glow) #gli oggetti glow si sovrappongono
+    
+    core  = QGraphicsRectItem(x, y, w, h); core.setPen(mk_pen(color, 2.6,  alpha=255)); view.addItem(core)
+
+    if label:
+        add_centered_text(view, ox, oy, label, base_font)
+    if not master:
+        add_arrow_with_glow(view, *top_edge(*linker), *bottom_edge(ox,oy,w,h))
+    return (ox, oy, w, h)
 # ---------- rettangolo con glow ----------
 def rect_with_glow(view, *, color=NEON, label=None,
                    master=False, linker=None, angle=0.0, distance=None, arrowAngle=True,
-                   base_font=QFont("DejaVu Sans", 11), pad_x=16, pad_y=10):
+                   base_font=QFont("DejaVu Sans", 11), pad_x=16, pad_y=10,direction="RIGHT"):
     """
     Crea un rettangolo glow con etichetta centrata.
     Ritorna (cx, cy, w, h).
@@ -62,11 +107,12 @@ def rect_with_glow(view, *, color=NEON, label=None,
     if master or linker is None:
         ox, oy = 0.0, 0.0
     else:
+        dir = 1 if direction == "RIGHT" else (-1 if direction == "LEFT" else 0)
         lx, ly, lw, lh = linker
         offs = lw/2.0 + w/2.0 if arrowAngle else 0.0
         dist = distance if distance is not None else 90.0
         rad  = math.radians(angle)
-        ox   = lx + offs + dist * math.cos(rad)
+        ox   = lx + offs*dir + dist *dir* math.cos(rad)
         oy   = ly + dist * math.sin(rad)
 
     # shape glow (due layer) + bordo netto
@@ -81,7 +127,10 @@ def rect_with_glow(view, *, color=NEON, label=None,
     if label:
         add_centered_text(view, ox, oy, label, base_font)
     if not master:
-        add_arrow_with_glow(view, *right_edge(*linker), *left_edge(ox,oy,w,h))
+        if direction=="RIGHT":
+            add_arrow_with_glow(view, *right_edge(*linker), *left_edge(ox,oy,w,h))
+        elif direction=="LEFT":
+            add_arrow_with_glow(view, *left_edge(*linker), *right_edge(ox,oy,w,h))
     return (ox, oy, w, h)
 
 # ---------- freccia con glow ----------
@@ -130,13 +179,13 @@ def main():
     view.setBackgroundColor(QBrush(BG))
     view.invertY(False)                      # Y verso l’alto (testi non rovesciati)
 
-    base_font = QFont("DejaVu Sans", 11)
+    base_font = QFont("Arial", 12)
 
     # --- nodi come nel tuo script ---
     C1 = rect_with_glow(view, label="Immagine generata", master=True, color=NEON, base_font=base_font)
 
     C2 = rect_with_glow(view, label="Vettore vicino a molte immagini,\nconcetto che il modello ha imparato [forse a memoria]",
-                        linker=C1, angle=60, color=NEON, base_font=base_font)
+                        linker=C1, angle=60,direction="RIGHT", color=NEON, base_font=base_font)
     C3 = rect_with_glow(view, label="maggior parte del contributo da queste immagini",
                         linker=C2, angle=0, color=NEON, base_font=base_font)
 
@@ -159,18 +208,13 @@ def main():
     add_arrow_with_glow(view, *right_edge(*C8), *left_edge(*C9))
 
     C10=rect_with_glow(view, label="considerare le distanze in gioco\n per decidere se approccio 1 o approccio 2",
-                        linker=C3,  distance=700,angle=0, color=NEON, base_font=base_font)
+                        linker=C3,  distance=500,angle=0, color=NEON, base_font=base_font)
     
-    add_arrow_with_glow(view, *right_edge(*C9), *left_edge(*C10))
+    C11=vertical_rect(view, label="opzionale: \nstudio 0-shot accuracy",
+                        linker=C5,angle=0,direction="DOWN", color=NEON, base_font=base_font)
+    add_arrow_with_glow(view, *bottom_edge(*C9), *top_edge(*C10))
 
-    '''
-    # “camera” iniziale (inquadra tutto)
-    xmin = min(C1[0]-C1[2]/2, C4[0]-C4[2]/2) - 80
-    xmax = max(C9[0]+C9[2]/2, C6[0]+C6[2]/2) + 80
-    ymin = min(C3[1]-C3[3]/2, C5[1]-C5[3]/2) - 120
-    ymax = max(C2[1]+C2[3]/2, C6[1]+C6[3]/2) + 120
-    view.setRange(xRange=(xmin, xmax), yRange=(ymin, ymax), padding=0.02)
-    '''
+    
     # massimizza finestra
     try:
         win.showMaximized()
