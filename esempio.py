@@ -8,7 +8,16 @@ def sph2cart(theta, phi, r=1.0):
     y = r * np.sin(theta) * np.sin(phi)
     z = r * np.cos(theta)
     return x, y, z
-
+def slerp(p0, p1, t_array):
+    p0_n = p0 / np.linalg.norm(p0)
+    p1_n = p1 / np.linalg.norm(p1)
+    dot = np.clip(np.dot(p0_n, p1_n), -1.0, 1.0)
+    theta = np.arccos(dot)
+    if np.isclose(theta, 0):
+        return np.outer(1 - t_array, p0_n) + np.outer(t_array, p1_n)
+    s1 = np.sin((1 - t_array) * theta) / np.sin(theta)
+    s2 = np.sin(t_array * theta) / np.sin(theta)
+    return (s1[:, None] * p0_n[None, :]) + (s2[:, None] * p1_n[None, :])
 # --- Parameters for the highlighted region (in degrees) ---
 theta0_deg = 50.0   # polar angle of region center
 phi0_deg   = 40.0   # azimuth of region center
@@ -59,8 +68,8 @@ vx2, vy2, vz2 = sph2cart(theta_vec2, phi_vec2, r=1.0)
 ax.quiver(0, 0, 0, vx2, vy2, vz2, length=1.0, normalize=True, color="green")
 ax.text(vx2*1.1, vy2*1.1, vz2*1.1, "cat", color="green")
 
-theta_vec3 = theta0
-phi_vec3   = phi0 - patch_radius * 2.5   # dall'altro lato
+theta_vec3 = theta0 +patch_radius*1.6
+phi_vec3   = phi0 + patch_radius * 0.5   # dall'altro lato
 vx3, vy3, vz3 = sph2cart(theta_vec3, phi_vec3, r=1.0)
 ax.quiver(0, 0, 0, vx3, vy3, vz3, length=1.0, normalize=True, color="orange")
 ax.text(vx3*1.1, vy3*1.1, vz3*1.1, "building", color="orange")
@@ -119,6 +128,31 @@ vx_tip, vy_tip, vz_tip = vx, vy, vz
 cx, cy, cz = sph2cart(theta0, phi0, r=1.0)
 Tcx, Tcy, Tcz = sph2cart(theta0, phi0*1.15, r=1.0)
 
-ax.plot([vx_tip, cx], [vy_tip, cy], [vz_tip, cz], color="blue", linestyle="--")
+
+t = np.linspace(0, 1, 45) #0 start value, 1 last value, 45 are the number of steps between these values
+a=cx, cy, cz
+b=vx_tip, vy_tip,vz_tip
+c=vx2, vy2, vz2
+d=vx3, vy3, vz3
+a = a / np.linalg.norm(a)
+b = b / np.linalg.norm(b)
+c=c/np.linalg.norm(c)
+d=d/np.linalg.norm(d)
+#print(a)
+#print(b)
+
+#distanza tra regione e vettore finale
+path_slerp = slerp(a, b, t)
+ax.plot(path_slerp[:,0], path_slerp[:,1], path_slerp[:,2], linewidth=2)
+
+#distanza tra vettore finale e vett cat
+path_slerp = slerp(b, c, t)
+ax.plot(path_slerp[:,0], path_slerp[:,1], path_slerp[:,2], linewidth=2)
+
+#distanza tra vettore finale e vett building
+path_slerp = slerp(b, d, t)
+ax.plot(path_slerp[:,0], path_slerp[:,1], path_slerp[:,2], linewidth=2)
+
+
 ax.text(Tcx,Tcy,Tcz,"distance",color="blue")
 plt.show()
