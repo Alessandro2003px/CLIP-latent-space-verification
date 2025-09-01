@@ -216,29 +216,37 @@ def main():
     C1 = rect_with_glow(view, label="Immagine generata", master=True, color=NEON, base_font=base_font)
 
     C2 = rect_with_glow(view, label="Vettore vicino a molte immagini,\nconcetto che il modello ha imparato [forse a memoria]", linker=C1, angle=60,direction="RIGHT", color=NEON, base_font=base_font)
-    C3 = rect_with_glow(view, label="maggior parte del contributo da queste immagini", linker=C2, angle=0, color=NEON, base_font=base_font)
+    C3 = rect_with_glow(view, label="(situazione 1) risultato: maggior parte del contributo da queste immagini", linker=C2, angle=0, color=NEON, base_font=base_font)
 
     C4 = rect_with_glow(view, label="Vettore lontano, concetto nuovo", linker=C1, angle=-60, color=NEON, base_font=base_font)
     C5 = rect_with_glow(view, label="Se il risultato non è gibberish\n (possibile nei modelli piu avanzati),\nscomposizione in componenti", linker=C4, angle=0, color=NEON, base_font=base_font)
 
     C6 = rect_with_glow(view, label="utilizzare CLIP per estrarre vett. immagine finale",linker=C5, angle=45, color=NEON, base_font=base_font)
-    C7 = vertical_rect(view, label="[???cpu] utilizzare blip per generare un caption,\npotendolo verificare con clip", linker=C6, angle=0,distance=30, color=NEON, base_font=base_font)
-    C8 = vertical_rect(view, label="analizzare tramite analisi semantica [!Ai]\n per separare il token testuale equivalente\n in concetti singoli ",linker=C7, angle=0,distance=30, color=NEON, base_font=base_font)
-    C9 = vertical_rect(view, label="reimmettere i token singoli in CLIP",linker=C8, angle=0,distance=30, color=NEON, base_font=base_font)
-    C9b = rect_with_glow(view, label="risultato: scomposizione dei singoli concetti usati dall'ia\nper generare l'immagine",linker=C9, angle=0, color=NEON, base_font=base_font)
+    #C7 = vertical_rect(view, label=" ̶[̶?̶?̶?̶c̶p̶u̶]̶ ̶u̶t̶i̶l̶i̶z̶z̶a̶r̶e̶ ̶b̶l̶i̶p̶ ̶p̶e̶r̶ ̶g̶e̶n̶e̶r̶a̶r̶e̶ ̶u̶n̶ ̶c̶a̶p̶t̶i̶o̶n̶,̶ \np̶o̶t̶e̶n̶d̶o̶l̶o̶ ̶v̶e̶r̶i̶f̶i̶c̶a̶r̶e̶ ̶c̶o̶n̶ ̶c̶l̶i̶p̶", linker=C6, angle=0,distance=30, color=NEON, base_font=base_font)
+    #C8 = vertical_rect(view, label="analizzare tramite analisi semantica [!Ai]\n per separare il token testuale equivalente\n in concetti singoli ",linker=C7, angle=0,distance=30, color=NEON, base_font=base_font)
+    C78=vertical_rect(view, label="analizzare l'immagine\n ed estrarne i contenuti e ottenere token testuali,\noppure utilizzare direttamente il prompt utilizzato ",linker=C6, angle=0,distance=30, color=NEON, base_font=base_font)
+    C9 = vertical_rect(view, label="reimmettere i token singoli in CLIP",linker=C78, angle=0,distance=30, color=NEON, base_font=base_font)
+    C9b = rect_with_glow(view, label="(situazione 2) risultato: scomposizione dei singoli concetti usati dall'ia\nper generare l'immagine",linker=C9, angle=0, color=NEON, base_font=base_font)
+
+
+    C9c = vertical_rect(view, label="approccio 1:\n tutti i componenti hanno valore uguale",linker=C9b, angle=-65,distance=190, color=NEON, base_font=base_font)
+    C9d = vertical_rect(view, label="approccio 2:\n peso dei componenti in base\n alla distanza col punto di origine(finale)",linker=C9b, angle=65,distance=190, color=NEON, base_font=base_font)
 
     # Frecce aggiuntive
     #add_arrow_with_glow(view, *right_edge(*C6), *left_edge(*C9))
     #add_arrow_with_glow(view, *right_edge(*C8), *left_edge(*C9))
 
-    C10=rect_with_glow(view, label="considerare le distanze in gioco\n per decidere se approccio 1 o approccio 2",linker=C3,  distance=500,angle=0, color=NEON, base_font=base_font)
+    C10=rect_with_glow(view, label="considerare le distanze dei vettori\n per utilizzare il caso opportuno (situazione 1 o situazione 2)",linker=C3,  distance=500,angle=0, color=NEON, base_font=base_font)
     
-    C11=vertical_rect(view, label="opzionale: \nstudio 0-shot accuracy",linker=C5,angle=0,direction="DOWN", color=NEON, base_font=base_font)
+   # C11=vertical_rect(view, label="opzionale: \nstudio 0-shot accuracy",linker=C5,angle=0,direction="DOWN", color=NEON, base_font=base_font)
+    
+    
     #C12=rect_with_glow(view,linker=C10,angle=0)
     #C13=rect_with_glow(view,linker=C12,angle=0)
     #C14=rect_with_glow(view,linker=C13,angle=0)
     #C15=rect_with_glow(view,linker=C14,angle=0)
     add_arrow_with_glow(view, *bottom_edge(*C9b), *top_edge(*C10))
+    #add_arrow_with_glow(view, *bottom_edge(*C9d), *top_edge(*C10))
 
     
     # massimizza finestra
