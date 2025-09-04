@@ -21,9 +21,12 @@ import plotly.graph_objects as go
 # Can be URLs or local paths.
 images = [
     "dataset_immagini/gattorazzo.png",
-    "dataset_immagini/gattoGhibli.png",
+    #"dataset_immagini/gattoGhibli.png",
     "dataset_immagini/gattorazzoBIG.png",
     "dataset_immagini/razzo.png",
+    "dataset_immagini/gattoGhibliIA.png",
+
+    "dataset_immagini/uomo.png",
     "dataset_immagini/barba.png",
     "dataset_immagini/donna.png",
     "dataset_immagini/cane.png",
