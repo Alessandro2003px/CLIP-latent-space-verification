@@ -12,95 +12,96 @@ model = model.eval().to(dml)
 
 # ---- Immagine di prova
 #url = "https://huggingface.co/datasets/nateraw/blip-images/resolve/main/apple.jpg"
-image = Image.open("dataset_immagini/gattorazzo.png").convert("RGB")
+image = Image.open("../dataset_immagini/gatto+aereo.png").convert("RGB")
 image_in = preprocess(image).unsqueeze(0).to(dml)
 
 # ---- Testo (anche uno solo va bene)
 prompts = [
-    "a photo of a cat and a rocket",
-    "a photo of a cat, rocket background",
+    "a photo of a cat and a plane",
+    "a photo of a cat, plane background",
     "a photo of a cat starship blurred background",
     "a photo of a cat blurred background",
 "a close-up photo of a striped cat outdoors",
-"a close-up photo of a striped cat outdoors rocket",
+"a close-up photo of a striped cat outdoors plane",
 
 "a cat with golden eyes staring at the camera",
 
-"a brown tabby cat with blurred rocket behind",
+"a brown tabby cat with blurred plane behind",
 
-"a cat portrait with background rocket slightly out of focus",
+"a cat portrait with background plane slightly out of focus",
 
 "a photo of a curious cat in natural light",
 
-"a striped cat with yellow eyes and rocket background",
+"a striped cat with yellow eyes and plane background",
 
-"a close-up of cat face sharp focus blurred rocket",
+"a close-up of cat face sharp focus blurred plane",
 
-"a tabby cat sitting outside with rocket behind",
+"a tabby cat sitting outside with plane behind",
 
-"a cat with alert ears and rocket in background",
+"a cat with alert ears and plane in background",
 
-"a photo of a tabby cat sharp and rocket blurry",
+"a photo of a tabby cat sharp and plane blurry",
 
 "a portrait of a brown cat golden eyes outdoors",
 
-"a rocket in background with cat foreground photo",
+"a plane in background with cat foreground photo",
 
-"a cat in foreground, rocket visible in distance",
+"a cat in foreground, plane visible in distance",
 
 "a brown cat portrait with outdoor blurred background",
 
-"a photo of a tabby cat and tiny rocket",
+"a photo of a tabby cat and tiny plane",
 
-"a close-up cat photo with rocket behind trees",
+"a close-up cat photo with plane behind trees",
 
-"a striped cat with clear eyes and rocket background",
+"a striped cat with clear eyes and plane background",
 
-"a tabby cat sharp focus, outdoor rocket blurred",
+"a tabby cat sharp focus, outdoor plane blurred",
 
-"a portrait of a cat with whiskers and rocket",
+"a portrait of a cat with whiskers and plane",
 
-"a cat in natural setting, rocket in background",
+"a cat in natural setting, plane in background",
 
-"a close-up of a cat with rocket far away",
+"a close-up of a cat with plane far away",
 
-"a cat sitting upright with rocket in blurred background",
+"a cat sitting upright with plane in blurred background",
 
-"a photo of a cat outdoors with red rocket",
-"a cat staring directly ahead, rocket behind",
+"a photo of a cat outdoors with red plane",
+"a cat staring directly ahead, plane behind",
 
-"a cat with stripes and rocket in background",
+"a cat with stripes and plane in background",
 
-"a sharp cat portrait with rocket slightly visible",
+"a sharp cat portrait with plane slightly visible",
 
-"a brown striped cat golden eyes and rocket",
+"a brown striped cat golden eyes and plane",
 
-"a cat with blurred rocket background in green field",
+"a cat with blurred plane background in green field",
+"a cat in green field",
 
-"a cat face close-up with rocket behind",
+"a cat face close-up with plane behind",
 
-"a detailed cat portrait outdoors rocket background",
+"a detailed cat portrait outdoors plane background",
 
-"a photo of a rocket and cat foreground",
+"a photo of a plane and cat foreground",
 
-"a cat focused forward with rocket blurred",
+"a cat focused forward with plane blurred",
 
-"a curious tabby cat, rocket in background",
+"a curious tabby cat, plane in background",
 
-"a photo of a cat with toy rocket",
+"a photo of a cat with toy plane",
 
-"a cat portrait nature background with rocket",
+"a cat portrait nature background with plane",
 
-"a striped tabby cat golden eyes rocket behind",
+"a striped tabby cat golden eyes plane behind",
 
-"a close-up cat face with rocket blurred",
+"a close-up cat face with plane blurred",
 
-"a cat outdoors in focus, rocket behind",
+"a cat outdoors in focus, plane behind",
 
-"a detailed photo of a cat and rocket",
+"a detailed photo of a cat and plane",
 
-"a portrait of a tabby cat with background rocket",
-    "a photo of a rocket",
+"a portrait of a tabby cat with background plane",
+    "a photo of a plane",
     "a photo of a ghibli cat",
     "a photo of a black ghibli cat",
     "a photo of a cat"

@@ -32,7 +32,7 @@ images = [
     "dataset_immagini/cane.png",
     "dataset_immagini/gatto.png"
 ]
-'''
+
 images = [ ##################################fine images
     "dataset_immagini/gatto+aereo(small).png",
     "dataset_immagini/gatto+aereo.png",
@@ -117,14 +117,17 @@ def distances_from_center(center_idx: int):
     x = [0.0]; y = [0.0]; z = [0.0]
     labs = [labels[center_idx]] + [labels[i] for i in others]
     hover = [f"{labels[center_idx]}<br>dist=0.000 (center)"]
-    print("CENTER"+f"{labs[0]:>10s} | cos=1.0000 | {metric}=0.0000")  ############################debug print
+    #print("CENTER"+f"{labs[0]:>10s} | cos=1.0000 | {metric}=0.0000")  ############################debug print
+    print("CENTER"+f"{labs[0]:>10s}, cos=1.0000")  ############################debug print
 
     for r, ang, lab, d0 , cval in zip(radii, angles, labs[1:], radii_orig,cos):
         x.append(float(r * math.cos(ang)))
         y.append(float(r * math.sin(ang)))
         z.append(0.0)
         hover.append(f"{lab}<br>dist={d0:.4f} ({metric})")
-        print(f"{lab:>10s} | cos={cval:.4f} | {metric}={d0:.4f}")   ############################debug print
+        #print(f"{lab:>10s} | cos={cval:.6f} | {metric}={d0:.6f}")   ############################debug print
+        print(f"{lab:>10s}, cos={cval:.6f}")   ############################debug print
+
     return x, y, z, labs, hover
 
 def build_trace_set_for_center(center_idx: int):
