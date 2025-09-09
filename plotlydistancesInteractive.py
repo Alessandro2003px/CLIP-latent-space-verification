@@ -20,18 +20,31 @@ import plotly.graph_objects as go
 # You can use any number of images ≥ 2 (first shown as center initially).
 # Can be URLs or local paths.
 images = [
-    "dataset_immagini/gattorazzo.png",
+    #"dataset_immagini/gatto+aereo(small).png",
     #"dataset_immagini/gattoGhibli.png",
-    "dataset_immagini/gattorazzoBIG.png",
-    "dataset_immagini/razzo.png",
-    "dataset_immagini/gattoGhibliIA.png",
+    "dataset_immagini/gatto+aereo.png",
+    "dataset_immagini/aereo.png",
+    #"dataset_immagini/gattoGhibli.png",
+
+    "dataset_immagini/uomo.png",
+    #"dataset_immagini/barba.png",
+    "dataset_immagini/donna.png",
+    "dataset_immagini/cane.png",
+    "dataset_immagini/gatto.png"
+]
+'''
+images = [ ##################################fine images
+    "dataset_immagini/gatto+aereo(small).png",
+    "dataset_immagini/gatto+aereo.png",
+    "dataset_immagini/aereo.png",
+    "dataset_immagini/gattoGhibli.png",
 
     "dataset_immagini/uomo.png",
     "dataset_immagini/barba.png",
     "dataset_immagini/donna.png",
     "dataset_immagini/cane.png",
     "dataset_immagini/gatto.png"
-]
+]#'''
 
 # Show only the basename after the folder
 labels = [os.path.basename(p) for p in images]
@@ -83,6 +96,7 @@ def distances_from_center(center_idx: int):
 
     if metric == "cosine":
         dists = 1.0 - cos
+        
     elif metric == "angular":
         dists = np.arccos(cos)          # radians
     elif metric == "euclidean":
@@ -103,13 +117,14 @@ def distances_from_center(center_idx: int):
     x = [0.0]; y = [0.0]; z = [0.0]
     labs = [labels[center_idx]] + [labels[i] for i in others]
     hover = [f"{labels[center_idx]}<br>dist=0.000 (center)"]
+    print("CENTER"+f"{labs[0]:>10s} | cos=1.0000 | {metric}=0.0000")  ############################debug print
 
-    for r, ang, lab, d0 in zip(radii, angles, labs[1:], radii_orig):
+    for r, ang, lab, d0 , cval in zip(radii, angles, labs[1:], radii_orig,cos):
         x.append(float(r * math.cos(ang)))
         y.append(float(r * math.sin(ang)))
         z.append(0.0)
         hover.append(f"{lab}<br>dist={d0:.4f} ({metric})")
-
+        print(f"{lab:>10s} | cos={cval:.4f} | {metric}={d0:.4f}")   ############################debug print
     return x, y, z, labs, hover
 
 def build_trace_set_for_center(center_idx: int):

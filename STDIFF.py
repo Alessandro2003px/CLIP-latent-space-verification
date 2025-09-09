@@ -77,16 +77,39 @@ while(True):
         mode='markers',
         marker=dict(size=3, color=colors)  # size=2..4 ok
     ))
-
-    fig.update_layout(
+    color1="white"
+    color2="black"
+    '''fig.update_layout(
         title="Latent RGB (colore) + Height (Z) - WebGL",
         scene=dict(
-            xaxis=dict(showbackground=True, backgroundcolor="black", showgrid=True, color="white"),
-            yaxis=dict(showbackground=True, backgroundcolor="black", showgrid=True, color="white"),
-            zaxis=dict(showbackground=True, backgroundcolor="black", showgrid=True, color="white"),
+            xaxis=dict(showbackground=True, backgroundcolor=color1, showgrid=True, color=color1),
+            yaxis=dict(showbackground=True, backgroundcolor=color1, showgrid=True, color=color1),
+            zaxis=dict(showbackground=True, backgroundcolor=color1, showgrid=True, color=color1),
             xaxis_title='X', yaxis_title='Y', zaxis_title='H',
             bgcolor='black'
         ),
-        paper_bgcolor='black', font_color='white'
-    )
+        paper_bgcolor=color1, font_color=color2
+    )'''
+    fig.update_layout(
+    title="Latent RGB (colore) + Height (Z) - WebGL",
+    scene=dict(
+        xaxis=dict(
+            showbackground=True, backgroundcolor="white",
+            showgrid=True, gridcolor="black", color="black"
+        ),
+        yaxis=dict(
+            showbackground=True, backgroundcolor="white",
+            showgrid=True, gridcolor="black", color="black"
+        ),
+        zaxis=dict(
+            showbackground=True, backgroundcolor="white",
+            showgrid=True, gridcolor="black", color="black"
+        ),
+        xaxis_title='X', yaxis_title='Y', zaxis_title='H',
+        bgcolor="white"
+    ),
+    paper_bgcolor="white",
+    font_color="black"
+)
+
     fig.show()
